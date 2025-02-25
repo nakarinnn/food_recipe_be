@@ -6,7 +6,7 @@ dotenv.config();
 const connectDB = async () => {
   try {
     const db_string = process.env.db_string as string
-    const conn = await mongoose.connect('mongodb+srv://namekung95115999:ok15031503@foodrecipe.roc8o.mongodb.net/FoodRecipe')
+    const conn = await mongoose.connect(db_string)
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
