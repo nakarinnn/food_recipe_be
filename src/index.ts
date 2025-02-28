@@ -10,6 +10,7 @@ import userRoutes from "./routes/userRoutes";
 import foodRoutes from "./routes/FoodRoutes";
 import commentRoutes from "./routes/CommentRoutes";
 import ratingRoutes from "./routes/RatingRoutes";
+import likeRoutes from "./routes/LikeRoutes";
 
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/api", userRoutes);
 app.use("/api", foodRoutes);
 app.use("/api", commentRoutes);
 app.use("/api", ratingRoutes);
+app.use("/api", likeRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, TypeScript with Node.js!");
