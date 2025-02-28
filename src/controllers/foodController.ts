@@ -19,6 +19,15 @@ export const getAllFoods = async (req: Request, res: Response) => {
   }
 };
 
+export const getFoodsByType = async (req: Request, res: Response) => {
+  try {
+    const foods = await FoodService.getFoodsByType(req.params.type);
+    res.status(200).json(foods);
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+};
+
 export const getAllFoodsRandom = async (req: Request, res: Response) => {
   try {
     const foods = await FoodService.getAllFoodsRandom();

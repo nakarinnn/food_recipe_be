@@ -17,3 +17,20 @@ export const getAllFoodsRandom = async () => {
 export const getFoodById = async (id: string) => {
   return await Food.findById(id)
 };
+
+export const getFoodsByType = async (type: string) => {
+  try {
+    if (type === "main-course") {
+      return await Food.find({ category: "อาหารคาว" });
+    } else if (type === "dessert") {
+      return await Food.find({ category: "อาหารหวาน" });
+    } else if (type === "drink") {
+      return await Food.find({ category: "เครื่องดื่ม" });
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};

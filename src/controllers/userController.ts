@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { createUser, getAllUsers, loginUser } from "../services/userService";
 
 export const createUserController = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, avatar_url } = req.body;
   try {
-    const user = await createUser(name, email, password);
+    const user = await createUser(name, email, password, avatar_url);
     res.status(201).json(user);
   } catch (error) {
     res.status(500).json({ message: "Error creating user", error });
@@ -24,7 +24,7 @@ export const loginController = async (req: Request, res: Response) => {
       maxAge: 3600000, // อายุ cookie 1 ชั่วโมง
     });
 
-    res.status(200).json({ message: "Login successful", user: { name: user.name, email: user.email } });
+    res.status(200).json({ message: "Login successful", user: { id: user._id, name: user.name, email: user.email, avatar_url: user.avatar_url } });
   } catch (error) {
     res.status(400).json({ message: error });
   }
