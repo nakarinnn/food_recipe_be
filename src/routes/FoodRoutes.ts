@@ -3,10 +3,10 @@ import {createFood, getAllFoods, getAllFoodsRandom, getFoodById, getFoodsByType}
 
 const router = express.Router();
 
-router.post("/food", createFood);
-router.get("/food", getAllFoods);
+router.post("/", createFood);
+router.get("/getAllfood", getAllFoods);
 router.get("/food-random", getAllFoodsRandom);
-router.get("/food/:foodId", getFoodById);
+router.get("/:foodId", getFoodById);
 router.get("/foodtype/:type", getFoodsByType)
 
 export default router;

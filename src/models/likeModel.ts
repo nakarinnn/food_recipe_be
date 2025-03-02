@@ -9,7 +9,7 @@ interface ILike extends Document {
 
 const LikeSchema: Schema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  targetId: { type: Schema.Types.ObjectId, required: true },
+  targetId: { type: Schema.Types.ObjectId, ref: "Food",required: true },
   targetType: { type: String, required: true, enum: ["Food", "Comment"] },
   createdAt: { type: Date, default: Date.now }
 });

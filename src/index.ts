@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
-  origin: process.env.fe_url,
+  origin: [process.env.fe_url || "http://localhost:5173"],
   credentials: true,
 };
 
@@ -28,11 +28,11 @@ app.use(cors(corsOptions));
 
 connectDB();
 
-app.use("/api", userRoutes);
-app.use("/api", foodRoutes);
-app.use("/api", commentRoutes);
-app.use("/api", ratingRoutes);
-app.use("/api", likeRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/food", foodRoutes);
+app.use("/api/comment", commentRoutes);
+app.use("/api/rating", ratingRoutes);
+app.use("/api/like", likeRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, TypeScript with Node.js!");
