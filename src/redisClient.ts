@@ -6,6 +6,7 @@ const redis = new Redis({
   port: parseInt(process.env.REDIS_PORT || '6379'),
   username: process.env.REDIS_USERNAME,
   password: process.env.REDIS_PASSWORD,
+  tls:{}
 });
 
 // กำหนดค่าการเชื่อมต่อ Redis
