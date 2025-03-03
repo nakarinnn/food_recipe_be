@@ -49,3 +49,13 @@ export const getFoodById = async (req: Request, res: Response) => {
     res.status(500).json({ error: error });
   }
 };
+
+export const searchFood = async (req: Request, res: Response) => {
+  const {search} = req.params;
+  try {
+    const searchMenu = await FoodService.searchFood(search);
+    res.status(200).json(searchMenu);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching users", error });
+  }
+};

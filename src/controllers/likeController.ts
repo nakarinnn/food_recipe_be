@@ -25,7 +25,17 @@ export const getUserLikes = async (req: Request, res: Response) => {
     const { userId } = req.params;
     try {
         const likedRecipes = await LikeService.getUserLikes(userId);
-        res.status(200).json({ likedRecipes: likedRecipes.map(like => like.targetId) });
+        res.status(200).json({ likedRecipes: likedRecipes.map((like: { targetId: any; }) => like.targetId) });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const getFavoriteMenu = async (req: Request, res: Response) => {
+    const { userId } = req.params;
+    try {
+        const favoriteMenu = await LikeService.getFavoriteMenu(userId);
+        res.status(200).json(favoriteMenu);
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error" });
     }

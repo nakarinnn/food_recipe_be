@@ -7,9 +7,14 @@ export const createUserController = async (req: Request, res: Response) => {
     const user = await createUser(name, email, password, avatar_url);
     res.status(201).json(user);
   } catch (error) {
-    res.status(500).json({ message: "Error creating user", error });
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Error creating user", error });
+    }
   }
 };
+
 
 export const loginController = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -26,7 +31,10 @@ export const loginController = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "Login successful", user: { id: user._id, name: user.name, email: user.email, avatar_url: user.avatar_url } });
   } catch (error) {
-    res.status(400).json({ message: error });
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else {
+    res.status(400).json({ message: "Login failed", error });}
   }
 };
 

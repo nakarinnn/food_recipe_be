@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+import os from 'os'
+
 import userRoutes from "./routes/userRoutes";
 import foodRoutes from "./routes/FoodRoutes";
 import commentRoutes from "./routes/CommentRoutes";
@@ -36,6 +38,14 @@ app.use("/api/like", likeRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, TypeScript with Node.js!");
+});
+
+app.get("/api", (req, res) => {
+  res.json({
+    message: "Welcome to Food Recipe API!",
+    hostname: os.hostname(),
+    port: PORT,
+  });
 });
 
 app.listen(PORT, () => {
