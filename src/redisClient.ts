@@ -1,15 +1,15 @@
 import Redis from 'ioredis';
 
 // กำหนดค่าการเชื่อมต่อ Redis
-// const redis = new Redis({
-//   host: process.env.REDIS_HOST,
-//   port: parseInt(process.env.REDIS_PORT || '6379'),
-//   username: process.env.REDIS_USERNAME,
-//   password: process.env.REDIS_PASSWORD,
-//   tls: { rejectUnauthorized: false }
-// });
+const redis = new Redis({
+  host: process.env.REDIS_HOST,
+  port: parseInt(process.env.REDIS_PORT || '6379'),
+  username: process.env.REDIS_USERNAME,
+  password: process.env.REDIS_PASSWORD,
+  tls: { rejectUnauthorized: false }
+});
 
-const redis = new Redis(process.env.REDIS_url as string);
+// const redis = new Redis(process.env.REDIS_url as string);
 
 
 // กำหนดค่าการเชื่อมต่อ Redis
