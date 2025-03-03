@@ -1,11 +1,18 @@
 import Redis from 'ioredis';
 
-// กำหนดค่าการเชื่อมต่อ Redis
+//กำหนดค่าการเชื่อมต่อ Redis
 const redis = new Redis({
-  host: '127.0.0.1', // ที่อยู่ Redis Server
-  port: 6379,        // พอร์ตของ Redis
-  // password: 'your_password', // ใช้ถ้ามีการตั้งค่ารหัสผ่าน
+  host: process.env.REDIS_HOST,
+  port: parseInt(process.env.REDIS_PORT || '6379'),
+  // password: process.env.REDIS_PASSWORD, // ถ้ามี
 });
+
+// // กำหนดค่าการเชื่อมต่อ Redis
+// const redis = new Redis({
+//   host: '127.0.0.1',
+//   port: 6379,
+//   // password: process.env.REDIS_PASSWORD, // ถ้ามี
+// });
 
 // ตรวจจับข้อผิดพลาด
 redis.on('error', (err) => {

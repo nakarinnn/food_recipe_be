@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   food-recipe-be-1:
     build: .
@@ -9,7 +8,13 @@ services:
     environment:
       - PORT=5000
       - MONGO_URI=mongodb://mongo:27017/FoodRecipe
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     restart: always
+    depends_on:
+      - redis
+      - mongo
     networks:
       - food-recipe-network
 
@@ -21,21 +26,53 @@ services:
     environment:
       - PORT=5001
       - MONGO_URI=mongodb://mongo:27017/FoodRecipe
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     restart: always
+    depends_on:
+      - redis
+      - mongo
     networks:
       - food-recipe-network
 
-  # mongo:
-  #   image: mongo:latest
-  #   container_name: mongo
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=root
-  #     - MONGO_INITDB_ROOT_PASSWORD=password123!
-  #   volumes:
-  #     - mongo-data:/data/db
-  #   restart: always
-  #   networks:
-  #     - food-recipe-network
+  food-recipe-be-3:
+    build: .
+    container_name: food-recipe-be-3
+    env_file:
+      - .env
+    environment:
+      - PORT=5002
+      - MONGO_URI=mongodb://mongo:27017/FoodRecipe
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    restart: always
+    depends_on:
+      - redis
+      - mongo
+    networks:
+      - food-recipe-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - food-recipe-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - food-recipe-network
 
   nginx:
     image: nginx:latest
@@ -47,6 +84,7 @@ services:
     depends_on:
       - food-recipe-be-1
       - food-recipe-be-2
+      - food-recipe-be-3
     restart: always
     networks:
       - food-recipe-network
@@ -55,6 +93,5 @@ networks:
   food-recipe-network:
     driver: bridge
 
-# volumes:
-#   mongo-data:
-#     driver: local
+volumes:
+  mongodb_data:
