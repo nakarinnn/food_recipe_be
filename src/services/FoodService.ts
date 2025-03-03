@@ -32,7 +32,7 @@ export const getAllFoods = async () => {
   const foods = await Food.find().populate("ratings").populate("comments");
 
   // เก็บข้อมูลลง Redis เป็นเวลา 5 นาที
-  await redis.set(cacheKey, JSON.stringify(foods), "EX", 60 * 5);
+  await redis.set(cacheKey, JSON.stringify(foods), { EX: 60 * 5 });
 
   return foods;
 };
@@ -63,7 +63,7 @@ export const getFoodById = async (id: string) => {
 
   // เก็บข้อมูลลง Redis เป็นเวลา 5 นาที
   if (food) {
-    await redis.set(cacheKey, JSON.stringify(food), "EX", 60 * 5);
+    await redis.set(cacheKey, JSON.stringify(food), { EX: 60 * 5 });
   }
 
   return food;
@@ -94,7 +94,7 @@ export const getFoodsByType = async (type: string) => {
     }
 
     // เก็บข้อมูลลง Redis เป็นเวลา 5 นาที
-    await redis.set(cacheKey, JSON.stringify(foods), "EX", 60 * 5);
+    await redis.set(cacheKey, JSON.stringify(foods), { EX: 60 * 5 });
 
     return foods;
   } catch (error) {

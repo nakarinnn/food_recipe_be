@@ -37,7 +37,7 @@ export const getFavoriteMenu = async (userId: string) => {
 
     const favmenu = await Like.find({ user: userId, targetType: 'Food' }).populate('targetId').sort({ createdAt: -1 })
     if (favmenu) {
-        await redis.set(cacheKey, JSON.stringify(favmenu), "EX", 60 * 5);
+        await redis.set(cacheKey, JSON.stringify(favmenu), { EX: 60 * 5 });
     }
 
     return favmenu

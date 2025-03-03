@@ -47,6 +47,6 @@ export const getAllUsers = async () => {
 
   const users = await User.find();
 
-  await redis.set(cacheKey, JSON.stringify(users), "EX", 300);
+  await redis.set(cacheKey, JSON.stringify(users), { EX: 60 * 5 });
   return users;
 };
