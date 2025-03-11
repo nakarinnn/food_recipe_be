@@ -1,124 +1,118 @@
 import Food from "../models/foodModel";
-import redis from "../redisClient";
+import Like from "../models/likeModel";
+import Rating from "../models/ratingModel";
+import Comment from "../models/commentModel";
 
-/**
- * สร้างเมนูอาหารใหม่ และล้างแคชที่เกี่ยวข้อง
- */
 export const createFood = async (foodData: any) => {
-  const newFood = await Food.create(foodData);
-
-  // ล้างแคชเพื่อให้ข้อมูลใหม่อัปเดต
-  await redis.del("getAllFoods");
-  await redis.del("getAllFoodsRandom");
-  await redis.del("getAverageRating");
+  const newFood = await Food.create({
+    name: foodData.name,
+    category: foodData.category,
+    description: foodData.description,
+    cookTime: foodData.cookTime,
+    image: foodData.image,
+    owner: foodData.owner,
+    ingredients: foodData.ingredients,
+    instructions: foodData.instructions,
+    ratings: foodData.ratings,
+    comments: foodData.comments
+  });
 
   return newFood;
 };
 
-/**
- * ดึงรายการอาหารทั้งหมด โดยใช้ Redis Cache
- */
 export const getAllFoods = async () => {
-  const cacheKey = "getAllFoods";
+  const foods = await Food.find().populate("ratings").populate("comments").lean();
 
-  // ตรวจสอบข้อมูลใน Redis
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
+  const foodsWithAvg = foods.map((food) => ({
+    ...food,
+    avg: food.ratings.length
+      ? food.ratings.reduce((sum, r: any) => sum + r.rating, 0) / food.ratings.length
+      : 0,
+  }));
 
-    return JSON.parse(cachedData);
-  }
-
-  // ดึงข้อมูลจาก Database
-  const foods = await Food.find().populate("ratings").populate("comments");
-
-  // เก็บข้อมูลลง Redis เป็นเวลา 5 นาที
-  await redis.set(cacheKey, JSON.stringify(foods), { EX: 60 * 5 });
-
-  return foods;
+  return foodsWithAvg;
 };
 
-/**
- * ดึงรายการอาหารแบบสุ่ม โดยใช้ Redis Cache
- */
-export const getAllFoodsRandom = async () => {
-  const foods = await Food.find().populate("ratings");
-  const randomFoods = foods.sort(() => 0.5 - Math.random());
-  return randomFoods;
+export const getFoodsRandom = async () => {
+  const foods = await Food.find().populate("ratings").populate("comments").limit(12).lean();
+
+  const foodsWithAvg = foods.map((food) => ({
+    ...food,
+    avg: food.ratings.length
+      ? food.ratings.reduce((sum, r: any) => sum + r.rating, 0) / food.ratings.length
+      : 0,
+  }));
+
+  return foodsWithAvg;
 };
 
-/**
- * ดึงข้อมูลอาหารตาม ID
- */
 export const getFoodById = async (id: string) => {
-  const cacheKey = `food:${id}`;
-
-  // ตรวจสอบข้อมูลใน Redis
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return JSON.parse(cachedData);
-  }
-
-  // ดึงข้อมูลจาก Database
-  const food = await Food.findById(id);
-
-  // เก็บข้อมูลลง Redis เป็นเวลา 5 นาที
-  if (food) {
-    await redis.set(cacheKey, JSON.stringify(food), { EX: 60 * 5 });
-  }
-
+  const food = await Food.findById(id).populate('owner', '_id name email avatar_url').lean();
   return food;
 };
 
-/**
- * ดึงรายการอาหารตามประเภท (คาว, หวาน, เครื่องดื่ม) โดยใช้ Redis Cache
- */
-export const getFoodsByType = async (type: string) => {
-  const cacheKey = `getFoodsByType:${type}`;
+export const getFoodByUserId = async (userId: string) => {
+  const foods = await Food.find({ owner: userId }).populate("ratings").populate("comments").sort({ createdAt: -1 }).lean();
 
-  // ตรวจสอบข้อมูลใน Redis
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return JSON.parse(cachedData);
-  }
+  const foodsWithAvg = foods.map((food) => ({
+    ...food,
+    avg: food.ratings.length
+      ? food.ratings.reduce((sum, r: any) => sum + r.rating, 0) / food.ratings.length
+      : 0,
+  }));
 
-  try {
-    let foods: any;
-    if (type === "main-course") {
-      foods = await Food.find({ category: "อาหารคาว" }).populate("ratings");
-    } else if (type === "dessert") {
-      foods = await Food.find({ category: "อาหารหวาน" }).populate("ratings");
-    } else if (type === "drink") {
-      foods = await Food.find({ category: "เครื่องดื่ม" }).populate("ratings");
-    } else {
-      foods = [];
-    }
-
-    // เก็บข้อมูลลง Redis เป็นเวลา 5 นาที
-    await redis.set(cacheKey, JSON.stringify(foods), { EX: 60 * 5 });
-
-    return foods;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  return foodsWithAvg;
 };
 
-/**
- * คำนวณคะแนนเฉลี่ยของเมนูอาหาร โดยใช้ Redis Cache
- */
-export const getAverageRating = async () => {
-  const ratings = await Food.find().populate("ratings");
-  if (ratings.length === 0) return 0;
+export const getFoodsByType = async (type: string) => {
+  try {
+    const categoryMap: Record<string, string> = {
+      "main-dish": "อาหารคาว",
+      "dessert": "อาหารหวาน",
+      "drink": "เครื่องดื่ม",
+    };
 
-  const avgRating = ratings.reduce((sum, r: any) => sum + r.rating, 0) / ratings.length;
+    const category = categoryMap[type];
+    if (!category) return [];
 
-  return avgRating;
+    const foods = await Food.find({ category }).populate("ratings").sort({ createdAt: -1 }).lean();
+
+    const foodsWithAvg = foods.map((food) => ({
+      ...food,
+      avg: food.ratings.length
+        ? food.ratings.reduce((sum, r: any) => sum + r.rating, 0) / food.ratings.length
+        : 0,
+    }));
+    return foodsWithAvg;
+  } catch (error) {
+    console.error(error);
+    return error;
+  }
 };
 
 export const searchFood = async (query: string) => {
   const foods = await Food.find({
     name: { $regex: query, $options: 'i' },
-  });
+  }).populate("ratings").lean();
 
-  return foods;
+  const foodsWithAvg = foods.map((food) => ({
+    ...food,
+    avg: food.ratings.length
+      ? food.ratings.reduce((sum, r: any) => sum + r.rating, 0) / food.ratings.length
+      : 0,
+  }));
+  return foodsWithAvg;
+};
+
+export const deleteRecipe = async (recipeId: string) => {
+  await Like.deleteMany({ targetId: recipeId });
+  await Rating.deleteMany({ foodId: recipeId });
+  await Comment.deleteMany({ foodId: recipeId });
+
+  const deletedFood = await Food.findByIdAndDelete({ _id: recipeId });
+
+  if (!deletedFood) {
+    throw new Error("เมนูที่ต้องการลบไม่มีอยู่ในระบบ");
+  }
+  return deletedFood;
 };

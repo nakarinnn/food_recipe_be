@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import * as RatingService from "../services/RatingService";
 
-export const createRating = async (req: Request, res: Response) => {
-  const {foodId, userId, rating} = req.body
+export const createRating = async (req: any, res: Response) => {
+  const { userId } = req.user;
+  const { foodId, rating } = req.body
   try {
     const rate = await RatingService.createRating(foodId, userId, rating);
     res.status(201).json(rate);
@@ -11,8 +12,9 @@ export const createRating = async (req: Request, res: Response) => {
   }
 };
 
-export const getRatingsByFoodIdAnduserId = async (req: Request, res: Response) => {
-  const {foodId, userId} = req.body
+export const getRatingsByFoodIdAnduserId = async (req: any, res: Response) => {
+  const { userId } = req.user;
+  const { foodId } = req.body
   try {
     const ratings = await RatingService.getRatingsByFoodIdAndUserId(userId, foodId);
     res.status(200).json(ratings);
@@ -22,7 +24,7 @@ export const getRatingsByFoodIdAnduserId = async (req: Request, res: Response) =
 };
 
 export const getAverageRating = async (req: Request, res: Response) => {
-  const {foodId} = req.body
+  const { foodId } = req.body
   try {
     const ratings = await RatingService.getAverageRating(foodId);
     res.status(200).json(ratings);

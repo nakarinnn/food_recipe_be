@@ -13,16 +13,17 @@ import foodRoutes from "./routes/FoodRoutes";
 import commentRoutes from "./routes/CommentRoutes";
 import ratingRoutes from "./routes/RatingRoutes";
 import likeRoutes from "./routes/LikeRoutes";
+import cookieParser from "cookie-parser";
 
+const PORT = process.env.PORT || 5000;
 
 const app = express();
-const PORT = process.env.PORT || 4000;
-
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
-  origin: [process.env.fe_url || "http://localhost:5173"],
+  origin: ["http://localhost:5173"],
   credentials: true,
 };
 

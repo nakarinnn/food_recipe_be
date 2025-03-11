@@ -23,10 +23,11 @@ export const loginController = async (req: Request, res: Response) => {
     const { user, token } = await loginUser(email, password);
 
     res.cookie("authToken", token, {
-      httpOnly: true,  // ป้องกันการเข้าถึง cookie ผ่าน JavaScript
-      // secure: process.env.NODE_ENV === "production", // ใช้ HTTPS ใน production
-      secure: false,
-      maxAge: 3600000, // อายุ cookie 1 ชั่วโมง
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: 'strict',
+      // maxAge: 7 * 24 * 60 * 60 * 1000, // อายุ cookie 7 วัน
+      maxAge: 1 * 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({ message: "Login successful", user: { id: user._id, name: user.name, email: user.email, avatar_url: user.avatar_url } });
@@ -34,7 +35,8 @@ export const loginController = async (req: Request, res: Response) => {
     if (error instanceof Error) {
       res.status(400).json({ message: error.message });
     } else {
-    res.status(400).json({ message: "Login failed", error });}
+      res.status(400).json({ message: "Login failed", error });
+    }
   }
 };
 
@@ -44,5 +46,19 @@ export const getUsersController = async (req: Request, res: Response) => {
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Error fetching users", error });
+  }
+};
+
+
+export const logoutController = async (req: Request, res: any) => {
+  try {
+    res.clearCookie('authToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+    return res.status(200).json({ message: 'Logged out successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'เกิดข้อผิดพลาดระหว่างการออกจากระบบ', error });
   }
 };

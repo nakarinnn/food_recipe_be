@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import * as CommentService from "../services/CommentService";
 
-export const createComment = async (req: Request, res: Response) => {
-  const {foodId, userId, text} = req.body
+export const createComment = async (req: any, res: Response) => {
+  const { userId } = req.user;
+  const {foodId, text} = req.body
   try {
     const comment = await CommentService.createComment(foodId, userId, text);
     res.status(201).json(comment);

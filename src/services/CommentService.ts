@@ -5,7 +5,7 @@ export const createComment = async (foodId: string, userId: string, text: string
 };
 
 export const getCommentsByFoodId = async (foodId: string) => {
-  return await Comment.find({ foodId }).populate("userId").sort({ createdAt: -1 });
+  return await Comment.find({ foodId }).populate("userId", '_id name email avatar_url').sort({ createdAt: -1 });
 };
 
 export const editComment = async (commentId: string, text: string) => {

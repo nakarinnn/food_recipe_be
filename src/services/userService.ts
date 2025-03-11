@@ -1,7 +1,6 @@
 import User from "../models/userModel";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import redis from "../redisClient";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -32,21 +31,12 @@ export const loginUser = async (email: string, password: string) => {
     throw new Error("อีเมลหรือรหัสผ่านไม่ถูกต้อง โปรดลองอีกครั้ง");
   }
 
-  const token = jwt.sign({ userId: user.uuid, email: user.email }, JWT_SECRET, { expiresIn: "1h" });
+  const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: "1d" });
 
   return { user, token };
 };
 
 export const getAllUsers = async () => {
-  const cacheKey = "getAllUsers";
-
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return JSON.parse(cachedData);
-  }
-
   const users = await User.find();
-
-  await redis.set(cacheKey, JSON.stringify(users), { EX: 60 * 5 });
   return users;
 };
