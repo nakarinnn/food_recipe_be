@@ -12,6 +12,6 @@ RUN npm install -g ts-node
 
 RUN npm run build
 
-EXPOSE 5000
+EXPOSE 2000
 
 CMD ["npm", "run", "start"]
