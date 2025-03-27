@@ -16,9 +16,9 @@ export const createUser = async (name: string, email: string, password: string, 
   const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = new User({ name, email, password: hashedPassword, avatar_url });
   await newUser.save();
+
   return newUser;
 };
-
 
 export const loginUser = async (email: string, password: string) => {
   const user = await User.findOne({ email });
@@ -33,8 +33,15 @@ export const loginUser = async (email: string, password: string) => {
 
   const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: "1d" });
 
-  return { user, token };
+  const userToCache = {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    avatar_url: user.avatar_url,
+  };
+  return { user: userToCache, token };
 };
+
 
 export const getAllUsers = async () => {
   const users = await User.find();

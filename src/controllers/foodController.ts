@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import * as FoodService from "../services/FoodService";
 
-export const createFood = async (req: Request, res: Response) => {
+export const createFood = async (req: any, res: Response) => {
+  const { userId } = req.user
   try {
-    const food = await FoodService.createFood(req.body.formData);
+    const food = await FoodService.createFood(req.body.formData, userId);
     res.status(201).json(food);
   } catch (error) {
     res.status(400).json({ error: error });
@@ -68,10 +69,11 @@ export const searchFood = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteRecipe = async (req: Request, res: Response) => {
+export const deleteRecipe = async (req: any, res: Response) => {
   const { recipeId } = req.params
+  const { userId } = req.user
   try {
-    const comment = await FoodService.deleteRecipe(recipeId);
+    const comment = await FoodService.deleteRecipe(recipeId, userId);
     res.status(201).json(comment);
   } catch (error) {
     res.status(400).json({ error: error });

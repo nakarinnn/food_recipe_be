@@ -1,18 +1,42 @@
+import mongoose from "mongoose";
 import Comment from "../models/commentModel";
 
 export const createComment = async (foodId: string, userId: string, text: string) => {
-  return await Comment.create({foodId, userId, text});
+  const newComment = await Comment.create({ foodId, userId, text });
+  return newComment;
 };
 
 export const getCommentsByFoodId = async (foodId: string) => {
-  return await Comment.find({ foodId }).populate("userId", '_id name email avatar_url').sort({ createdAt: -1 });
+  const comments = await Comment.aggregate([
+    {
+      $match: { foodId: new mongoose.Types.ObjectId(foodId) },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "userDetails",
+      },
+    },
+    {
+      $unwind: "$userDetails",
+    },
+    {
+      $sort: { createdAt: -1 },
+    },
+  ]);
+
+  return comments;
 };
 
 export const editComment = async (commentId: string, text: string) => {
-  return await Comment.findByIdAndUpdate(commentId, { text }, { new: true });
+  const comment = await Comment.findByIdAndUpdate(commentId, { text }, { new: true });
+
+  return comment;
 };
 
 export const deleteComment = async (commentId: string) => {
-  return await Comment.findByIdAndDelete(commentId);
+  const comment = await Comment.findByIdAndDelete(commentId);
+  return comment;
 };
-

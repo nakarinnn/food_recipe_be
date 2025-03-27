@@ -16,7 +16,11 @@ export const createRating = async (foodId: string, userId: string, rating: numbe
 
       return { newRating, message: "Rating successful" };
     } else {
-      const newRating = await Rating.findOneAndUpdate({ foodId, userId }, { $set: { rating } }, { new: true });
+      const newRating = await Rating.findOneAndUpdate(
+        { foodId, userId },
+        { $set: { rating } },
+        { new: true }
+      );
 
       return { newRating, message: "Rating updated successfully" };
     }
@@ -27,11 +31,15 @@ export const createRating = async (foodId: string, userId: string, rating: numbe
 };
 
 export const getRatingsByFoodIdAndUserId = async (userId: string, foodId: string) => {
-  return await Rating.findOne({ userId: userId, foodId: foodId });
+  const rating = await Rating.findOne({ userId, foodId });
+  return rating;
 };
 
 export const getAverageRating = async (foodId: string) => {
   const ratings = await Rating.find({ foodId });
+
   if (ratings.length === 0) return 0;
-  return ratings.reduce((sum, r: any) => sum + r.rating, 0) / ratings.length;
+
+  const average = ratings.reduce((sum, r: any) => sum + r.rating, 0) / ratings.length;
+  return average;
 };

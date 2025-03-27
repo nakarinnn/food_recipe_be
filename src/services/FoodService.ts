@@ -2,8 +2,9 @@ import Food from "../models/foodModel";
 import Like from "../models/likeModel";
 import Rating from "../models/ratingModel";
 import Comment from "../models/commentModel";
+import mongoose from "mongoose";
 
-export const createFood = async (foodData: any) => {
+export const createFood = async (foodData: any, userId: string) => {
   const newFood = await Food.create({
     name: foodData.name,
     category: foodData.category,
@@ -17,6 +18,11 @@ export const createFood = async (foodData: any) => {
     comments: foodData.comments
   });
 
+  const categoryMap: Record<string, string> = {
+    "อาหารคาว": "main-dish",
+    "อาหารหวาน": "dessert",
+    "เครื่องดื่ม": "drink",
+  };
   return newFood;
 };
 
@@ -47,8 +53,28 @@ export const getFoodsRandom = async () => {
 };
 
 export const getFoodById = async (id: string) => {
-  const food = await Food.findById(id).populate('owner', '_id name email avatar_url').lean();
-  return food;
+  try {
+    const food = await Food.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(id) }
+      },
+      {
+        $lookup: {
+          from: 'users',                  
+          localField: 'owner',                
+          foreignField: '_id',               
+          as: 'ownerDetails'                 
+        }
+      },
+      {
+        $unwind: '$ownerDetails'          
+      },
+    ]);
+    return food;
+  } catch (error) {
+    console.error(error);
+    return error;
+  }
 };
 
 export const getFoodByUserId = async (userId: string) => {
@@ -101,10 +127,11 @@ export const searchFood = async (query: string) => {
       ? food.ratings.reduce((sum, r: any) => sum + r.rating, 0) / food.ratings.length
       : 0,
   }));
+
   return foodsWithAvg;
 };
 
-export const deleteRecipe = async (recipeId: string) => {
+export const deleteRecipe = async (recipeId: string, userId: string) => {
   await Like.deleteMany({ targetId: recipeId });
   await Rating.deleteMany({ foodId: recipeId });
   await Comment.deleteMany({ foodId: recipeId });

@@ -14,6 +14,7 @@ import commentRoutes from "./routes/CommentRoutes";
 import ratingRoutes from "./routes/RatingRoutes";
 import likeRoutes from "./routes/LikeRoutes";
 import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
 
 const PORT = process.env.PORT || 2000;
 
@@ -31,6 +32,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(bodyParser.json());
 
 connectDB();
 
