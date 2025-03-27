@@ -23,7 +23,10 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
-  origin: [process.env.ORIGIN_URL as string|| "http://localhost:5173"],
+  origin: ["https://food-recipe-be-wsb1.onrender.com"],
+  // origin: [process.env.ORIGIN_URL as string|| "http://localhost:5173"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 
